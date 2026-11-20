@@ -133,5 +133,30 @@ fn find_account(accounts: &Vec<Account>, id: u64) -> Option<&Account> {
     None
 }
 
+fn deposit(
+    accounts: &mut Vec<Account>,
+    transactions: &mut Vec<Transaction>,
+    id: u64,
+    amount: i64,
+) -> Result<(), BankError> {
+    if amount <= 0 {
+        return Err(BankError::InvalidAmount);
+    }
+
+    for account in accounts {
+        if account.id == id {
+            account.balance += amount;
+            transactions.push(Transaction {
+                account_id: id,
+                kind: TransactionKind::Deposit,
+                amount,
+            });
+            return Ok(());
+        }
+    }
+
+    Err(BankError::AccountNotFound)
+}
+
 
 fn main() {}
