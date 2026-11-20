@@ -316,4 +316,194 @@ fn show_statistics(accounts: &Vec<Account>, transactions: &Vec<Transaction>) {
 }
 
 
-fn main() {}
+fn main() {
+    let mut accounts: Vec<Account> = Vec::new();
+    let mut transactions: Vec<Transaction> = Vec::new();
+    let mut next_id: u64 = 1;
+
+    loop {
+        println!("\n--- Bank Account Management ---");
+        println!("1. Create Account");
+        println!("2. List Accounts");
+        println!("3. Find Account by ID");
+        println!("4. Deposit");
+        println!("5. Withdraw");
+        println!("6. Transfer");
+        println!("7. Freeze / Unfreeze Account");
+        println!("8. Transaction History");
+        println!("9. Bank Statistics");
+        println!("10. Exit");
+        println!("Enter your choice:");
+
+        let choice = read_string();
+
+        match choice.as_str() {
+            "1" => {
+                println!("Enter owner name:");
+                let owner_name = read_string();
+                if owner_name.is_empty() {
+                    println!("Owner name cannot be empty.");
+                    continue;
+                }
+
+                println!("Enter initial balance (Rial):");
+                let initial_balance = match read_i64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid balance.");
+                        continue;
+                    }
+                };
+
+                match create_account(&mut accounts, &mut next_id, owner_name, initial_balance) {
+                    Ok(id) => println!("Account created successfully with ID: {}", id),
+                    Err(err) => print_error(err),
+                }
+            }
+            "2" => {
+                list_accounts(&accounts);
+            }
+            "3" => {
+                println!("Enter account ID:");
+                let id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid account ID.");
+                        continue;
+                    }
+                };
+
+                match find_account(&accounts, id) {
+                    Some(account) => {
+                        println!(
+                            "ID: {} | Owner: {} | Balance: {} Rial | Status: {}",
+                            account.id,
+                            account.owner_name,
+                            account.balance,
+                            status_to_str(&account.status)
+                        );
+                    }
+                    None => println!("Account not found."),
+                }
+            }
+            "4" => {
+                println!("Enter account ID:");
+                let id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid account ID.");
+                        continue;
+                    }
+                };
+
+                println!("Enter deposit amount (Rial):");
+                let amount = match read_i64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid amount.");
+                        continue;
+                    }
+                };
+
+                match deposit(&mut accounts, &mut transactions, id, amount) {
+                    Ok(()) => println!("Deposit successful."),
+                    Err(err) => print_error(err),
+                }
+            }
+            "5" => {
+                println!("Enter account ID:");
+                let id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid account ID.");
+                        continue;
+                    }
+                };
+
+                println!("Enter withdraw amount (Rial):");
+                let amount = match read_i64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid amount.");
+                        continue;
+                    }
+                };
+
+                match withdraw(&mut accounts, &mut transactions, id, amount) {
+                    Ok(()) => println!("Withdrawal successful."),
+                    Err(err) => print_error(err),
+                }
+            }
+            "6" => {
+                println!("Enter source account ID:");
+                let from_id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid source account ID.");
+                        continue;
+                    }
+                };
+
+                println!("Enter destination account ID:");
+                let to_id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid destination account ID.");
+                        continue;
+                    }
+                };
+
+                println!("Enter transfer amount (Rial):");
+                let amount = match read_i64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid amount.");
+                        continue;
+                    }
+                };
+
+                match transfer(&mut accounts, &mut transactions, from_id, to_id, amount) {
+                    Ok(()) => println!("Transfer successful."),
+                    Err(err) => print_error(err),
+                }
+            }
+            "7" => {
+                println!("Enter account ID:");
+                let id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid account ID.");
+                        continue;
+                    }
+                };
+
+                match toggle_freeze(&mut accounts, id) {
+                    Ok(new_status) => println!("Account status changed to: {}", status_to_str(new_status)),
+                    Err(err) => print_error(err),
+                }
+            }
+            "8" => {
+                println!("Enter account ID:");
+                let id = match read_u64() {
+                    Some(val) => val,
+                    None => {
+                        println!("Invalid account ID.");
+                        continue;
+                    }
+                };
+
+                show_history(&accounts, &transactions, id);
+            }
+            "9" => {
+                show_statistics(&accounts, &transactions);
+            }
+            "10" => {
+                println!("Goodbye!");
+                break;
+            }
+            _ => {
+                println!("Invalid choice. Please enter a number between 1 and 10.");
+            }
+        }
+    }
+}
