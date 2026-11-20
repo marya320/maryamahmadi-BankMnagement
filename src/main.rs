@@ -256,5 +256,19 @@ fn transfer(
     Ok(())
 }
 
+fn toggle_freeze(accounts: &mut Vec<Account>, id: u64) -> Result<&AccountStatus, BankError> {
+    for account in accounts {
+        if account.id == id {
+            match account.status {
+                AccountStatus::Active => account.status = AccountStatus::Frozen,
+                AccountStatus::Frozen => account.status = AccountStatus::Active,
+            }
+            return Ok(&account.status);
+        }
+    }
+
+    Err(BankError::AccountNotFound)
+}
+
 
 fn main() {}
