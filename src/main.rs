@@ -158,5 +158,39 @@ fn deposit(
     Err(BankError::AccountNotFound)
 }
 
+fn withdraw(
+    accounts: &mut Vec<Account>,
+    transactions: &mut Vec<Transaction>,
+    id: u64,
+    amount: i64,
+) -> Result<(), BankError> {
+    if amount <= 0 {
+        return Err(BankError::InvalidAmount);
+    }
+
+    for account in accounts {
+        if account.id == id {
+            match account.status {
+                AccountStatus::Frozen => return Err(BankError::AccountFrozen),
+                AccountStatus::Active => {}
+            }
+
+            if account.balance < amount {
+                return Err(BankError::InsufficientFunds);
+            }
+
+            account.balance -= amount;
+            transactions.push(Transaction {
+                account_id: id,
+                kind: TransactionKind::Withdraw,
+                amount,
+            });
+            return Ok(());
+        }
+    }
+
+    Err(BankError::AccountNotFound)
+}
+
 
 fn main() {}
