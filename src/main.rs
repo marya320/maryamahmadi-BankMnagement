@@ -83,5 +83,29 @@ fn read_i64() -> Option<i64> {
     }
 }
 
+fn create_account(
+    accounts: &mut Vec<Account>,
+    next_id: &mut u64,
+    owner_name: String,
+    initial_balance: i64,
+) -> Result<u64, BankError> {
+    if initial_balance < 0 {
+        return Err(BankError::InvalidAmount);
+    }
+
+    let id = *next_id;
+    *next_id += 1;
+
+    let new_account = Account {
+        id,
+        owner_name,
+        balance: initial_balance,
+        status: AccountStatus::Active,
+    };
+
+    accounts.push(new_account);
+    Ok(id)
+}
+
 
 fn main() {}
