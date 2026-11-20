@@ -107,5 +107,31 @@ fn create_account(
     Ok(id)
 }
 
+fn list_accounts(accounts: &Vec<Account>) {
+    if accounts.is_empty() {
+        println!("No accounts found.");
+        return;
+    }
+
+    for account in accounts {
+        println!(
+            "ID: {} | Owner: {} | Balance: {} Rial | Status: {}",
+            account.id,
+            account.owner_name,
+            account.balance,
+            status_to_str(&account.status)
+        );
+    }
+}
+
+fn find_account(accounts: &Vec<Account>, id: u64) -> Option<&Account> {
+    for account in accounts {
+        if account.id == id {
+            return Some(account);
+        }
+    }
+    None
+}
+
 
 fn main() {}
