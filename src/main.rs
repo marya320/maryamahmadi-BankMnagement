@@ -270,5 +270,50 @@ fn toggle_freeze(accounts: &mut Vec<Account>, id: u64) -> Result<&AccountStatus,
     Err(BankError::AccountNotFound)
 }
 
+fn show_history(accounts: &Vec<Account>, transactions: &Vec<Transaction>, id: u64) {
+    match find_account(accounts, id) {
+        None => {
+            println!("Account not found.");
+            return;
+        }
+        Some(_) => {}
+    }
+
+    let mut found = false;
+    for tx in transactions {
+        if tx.account_id == id {
+            println!("Type: {} | Amount: {} Rial", kind_to_str(&tx.kind), tx.amount);
+            found = true;
+        }
+    }
+
+    if !found {
+        println!("No transactions found for this account.");
+    }
+}
+
+fn show_statistics(accounts: &Vec<Account>, transactions: &Vec<Transaction>) {
+    let total_accounts = accounts.len();
+    let mut active_accounts = 0;
+    let mut frozen_accounts = 0;
+    let mut total_balance: i64 = 0;
+
+    for account in accounts {
+        match account.status {
+            AccountStatus::Active => active_accounts += 1,
+            AccountStatus::Frozen => frozen_accounts += 1,
+        }
+        total_balance += account.balance;
+    }
+
+    let total_transactions = transactions.len();
+
+    println!("Total accounts: {}", total_accounts);
+    println!("Active accounts: {}", active_accounts);
+    println!("Frozen accounts: {}", frozen_accounts);
+    println!("Total balance: {} Rial", total_balance);
+    println!("Total transactions: {}", total_transactions);
+}
+
 
 fn main() {}
