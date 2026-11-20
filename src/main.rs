@@ -192,5 +192,69 @@ fn withdraw(
     Err(BankError::AccountNotFound)
 }
 
+fn transfer(
+    accounts: &mut Vec<Account>,
+    transactions: &mut Vec<Transaction>,
+    from_id: u64,
+    to_id: u64,
+    amount: i64,
+) -> Result<(), BankError> {
+    if amount <= 0 {
+        return Err(BankError::InvalidAmount);
+    }
+
+    if from_id == to_id {
+        return Err(BankError::SameAccount);
+    }
+
+    let mut from_index: Option<usize> = None;
+    let mut to_index: Option<usize> = None;
+
+    for i in 0..accounts.len() {
+        if accounts[i].id == from_id {
+            from_index = Some(i);
+        }
+        if accounts[i].id == to_id {
+            to_index = Some(i);
+        }
+    }
+
+    let from_idx = match from_index {
+        Some(i) => i,
+        None => return Err(BankError::AccountNotFound),
+    };
+
+    let to_idx = match to_index {
+        Some(i) => i,
+        None => return Err(BankError::AccountNotFound),
+    };
+
+    match accounts[from_idx].status {
+        AccountStatus::Frozen => return Err(BankError::AccountFrozen),
+        AccountStatus::Active => {}
+    }
+
+    if accounts[from_idx].balance < amount {
+        return Err(BankError::InsufficientFunds);
+    }
+
+    accounts[from_idx].balance -= amount;
+    accounts[to_idx].balance += amount;
+
+    transactions.push(Transaction {
+        account_id: from_id,
+        kind: TransactionKind::TransferOut,
+        amount,
+    });
+
+    transactions.push(Transaction {
+        account_id: to_id,
+        kind: TransactionKind::TransferIn,
+        amount,
+    });
+
+    Ok(())
+}
+
 
 fn main() {}
